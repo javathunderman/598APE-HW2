@@ -1,5 +1,6 @@
 #pragma once
-
+#include <cstring>
+#include <iostream>
 namespace genetic {
 
 /**
@@ -13,9 +14,7 @@ namespace genetic {
  */
 template <typename DataT, int MaxSize> struct stack {
   explicit stack() : elements_(0) {
-    for (int i = 0; i < MaxSize; ++i) {
-      regs_[i] = DataT(0);
-    }
+    std::fill(std::begin(regs_), std::end(regs_), DataT(0));
   }
 
   /** Checks if the stack is empty */
@@ -38,11 +37,9 @@ template <typename DataT, int MaxSize> struct stack {
    *       behavior.
    */
   void push(DataT val) {
-    for (int i = MaxSize - 1; i >= 0; --i) {
-      if (elements_ == i) {
-        ++elements_;
-        regs_[i] = val;
-      }
+    if (elements_ < MaxSize) {
+      regs_[elements_] = val;
+      elements_++;
     }
   }
 
@@ -57,16 +54,13 @@ template <typename DataT, int MaxSize> struct stack {
    *       designed this way. Trying to pop beyond the bottom of the stack leads
    *       to all sorts of incorrect behavior.
    */
-  DataT pop() {
-    for (int i = 0; i < MaxSize; ++i) {
-      if (elements_ == (i + 1)) {
-        elements_--;
-        return regs_[i];
-      }
-    }
-
-    return DataT(0);
+DataT pop() {
+  if (elements_ > 0) {
+    elements_--;
+    return regs_[elements_];
   }
+  return DataT(0);
+}
 
 private:
   int elements_;
