@@ -11,6 +11,7 @@
 #include <program.h>
 #include <random>
 #include <stack>
+#include <omp.h>
 
 namespace genetic {
 
@@ -21,9 +22,11 @@ namespace genetic {
 template <int MaxSize = MAX_STACK_SIZE>
 void execute_kernel(const program_t d_progs, const float *data, float *y_pred,
                     const uint64_t n_rows, const uint64_t n_progs) {
-  for (uint64_t pid = 0; pid < n_progs; ++pid) {
-    for (uint64_t row_id = 0; row_id < n_rows; ++row_id) {
-
+  uint64_t pid = 0, row_id = 0;
+  #pragma omp parallel
+  for (uint64_t iterator = 0; iterator < n_progs * n_rows; ++iterator) {
+      pid = (iterator / n_rows);
+      row_id = (iterator % n_rows);
       stack<float, MaxSize> eval_stack;
       program_t curr_p = d_progs + pid; // Current program
 
@@ -49,7 +52,6 @@ void execute_kernel(const program_t d_progs, const float *data, float *y_pred,
       // Outputs stored in col-major format
       y_pred[pid * n_rows + row_id] = eval_stack.pop();
     }
-  }
 }
 
 program::program()
