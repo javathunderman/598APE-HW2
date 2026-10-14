@@ -237,18 +237,14 @@ int get_depth(const program &p_out) {
       if (arity_stack.empty())
         break;
 
-      int e = arity_stack.top();
-      arity_stack.pop();
-      arity_stack.push(e - 1);
+      --arity_stack.top();
 
       while (arity_stack.top() == 0) {
         arity_stack.pop();
         if (arity_stack.empty())
           break;
 
-        e = arity_stack.top();
-        arity_stack.pop();
-        arity_stack.push(e - 1);
+        --arity_stack.top();
       }
     }
   }
@@ -317,18 +313,14 @@ void build_program(program &p_out, const param &params, PhiloxEngine &rng) {
       nodelist.push_back(curr_node);
 
       // Modify stack
-      int e = arity_stack.top();
-      arity_stack.pop();
-      arity_stack.push(e - 1);
+      --arity_stack.top();
       while (arity_stack.top() == 0) {
         arity_stack.pop();
         if (arity_stack.empty()) {
           break;
         }
 
-        e = arity_stack.top();
-        arity_stack.pop();
-        arity_stack.push(e - 1);
+        --arity_stack.top();
       }
     }
   }
