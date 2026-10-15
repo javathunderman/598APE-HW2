@@ -23,7 +23,7 @@ template <int MaxSize = MAX_STACK_SIZE>
 void execute_kernel(const program_t d_progs, const float *data, float *y_pred,
                     const uint64_t n_rows, const uint64_t n_progs) {
   uint64_t pid = 0, row_id = 0;
-  #pragma omp parallel
+  #pragma omp parallel for
   for (uint64_t iterator = 0; iterator < n_progs * n_rows; ++iterator) {
       pid = (iterator / n_rows);
       row_id = (iterator % n_rows);
