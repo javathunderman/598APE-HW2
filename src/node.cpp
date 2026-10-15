@@ -46,14 +46,6 @@ node::node(int fid) : t(node::type::variable) { u.fid = fid; }
 
 node::node(float val) : t(node::type::constant) { u.val = val; }
 
-node::node(const node &src) : t(src.t), u(src.u) {}
-
-node &node::operator=(const node &src) {
-  t = src.t;
-  u = src.u;
-  return *this;
-}
-
 bool node::is_terminal() const { return detail::is_terminal(t); }
 
 bool node::is_nonterminal() const { return detail::is_nonterminal(t); }
