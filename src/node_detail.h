@@ -34,7 +34,6 @@ inline float evaluate_node(const node &n, const float *data, const uint64_t stri
   } else if (n.t == node::type::variable) {
     return data[(stride * n.u.fid) + idx];
   } else {
-    auto abs_inval = fabsf(in[0]), abs_inval1 = fabsf(in[1]);
     // note: keep the case statements in alphabetical order under each category
     // of operators.
     switch (n.t) {
@@ -44,7 +43,7 @@ inline float evaluate_node(const node &n, const float *data, const uint64_t stri
     case node::type::atan2:
       return atan2f(in[0], in[1]);
     case node::type::div:
-      return abs_inval1 < MIN_VAL ? 1.0f : (in[0]/in[1]);//fdividef(in[0], in[1]);
+      return fabsf(in[1]) < MIN_VAL ? 1.0f : (in[0]/in[1]);//fdividef(in[0], in[1]);
     case node::type::fdim:
       return fdimf(in[0], in[1]);
     case node::type::gt:
@@ -61,7 +60,7 @@ inline float evaluate_node(const node &n, const float *data, const uint64_t stri
       return in[0] - in[1];
     // unary operators
     case node::type::abs:
-      return abs_inval;
+      return fabsf(in[0]);
     case node::type::acos:
       return acosf(in[0]);
     case node::type::acosh:
@@ -85,15 +84,17 @@ inline float evaluate_node(const node &n, const float *data, const uint64_t stri
     case node::type::exp:
       return expf(in[0]);
     case node::type::inv:
-      return abs_inval < MIN_VAL ? 0.f : 1.f / in[0];
-    case node::type::log:
+      return fabsf(in[0]) < MIN_VAL ? 0.f : 1.f / in[0];
+    case node::type::log: {
+      auto abs_inval = fabsf(in[0]);
       return abs_inval < MIN_VAL ? 0.f : logf(abs_inval);
+    }
     case node::type::neg:
       return -in[0];
     case node::type::rcbrt:
       return static_cast<float>(1.0) / cbrtf(in[0]);
     case node::type::rsqrt:
-      return static_cast<float>(1.0) / sqrtf(abs_inval);
+      return static_cast<float>(1.0) / sqrtf(fabsf(in[0]));
     case node::type::sin:
       return sinf(in[0]);
     case node::type::sinh:
@@ -101,7 +102,7 @@ inline float evaluate_node(const node &n, const float *data, const uint64_t stri
     case node::type::sq:
       return in[0] * in[0];
     case node::type::sqrt:
-      return sqrtf(abs_inval);
+      return sqrtf(fabsf(in[0]));
     case node::type::tan:
       return tanf(in[0]);
     case node::type::tanh:
