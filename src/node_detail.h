@@ -28,149 +28,180 @@ inline int arity(node::type t) {
 }
 
 // `data` assumed to be stored in col-major format
-inline std::valarray<float> evaluate_node(const node &n, const float *data, const uint64_t stride,
-                          std::valarray<float> in0, std::valarray<float> in1) {
+inline void evaluate_node(const node &n, const float *data, const uint64_t stride,
+                          std::valarray<float> &in0, std::valarray<float> &in1, std::valarray<float> &res) {
   if (n.t == node::type::constant) {
-    return std::valarray<float>(n.u.val, stride);
+    res = n.u.val;
   } else if (n.t == node::type::variable) {
-    return std::valarray<float>(data + stride * n.u.fid, stride);
+    res = std::valarray<float>(data + stride * n.u.fid, stride);
   } else {
     // note: keep the case statements in alphabetical order under each category
     // of operators.
     switch (n.t) {
     // binary operators
-    case node::type::add:
-      return in0 + in1;
-    case node::type::atan2:
-      return std::atan2(in0, in1);
+    case node::type::add: {
+      res = in0 + in1;
+      break;
+    }
+    case node::type::atan2: {
+      res = std::atan2(in0, in1);
+      break;
+    }
     case node::type::div: {
-      auto arr = std::valarray<float>(1.0f, stride);
+      res = 1.0f;
       for (unsigned int i = 0; i < stride; ++i) {
-        if (fabsf(in1[i]) >= MIN_VAL) arr[i] = in0[i]/in1[i];
+        if (fabsf(in1[i]) >= MIN_VAL) res[i] = in0[i]/in1[i];
       }
-      return arr;
+      break;
     }
     case node::type::fdim: {
-      auto arr = std::valarray<float>(stride);
       for (unsigned int i = 0; i < stride; ++i)
-        arr[i] = fdimf(in0[i], in1[i]);
-      return arr;
+        res[i] = fdimf(in0[i], in1[i]);
+      break;
     }
     case node::type::gt: {
-      auto arr = std::valarray<float>(0.0f, stride);
+      res = 0.0f;
       for (unsigned int i = 0; i < stride; ++i) {
-        if (in0[i] > in1[i]) arr[i] = 1.0f;
+        if (in0[i] > in1[i]) res[i] = 1.0f;
       }
-      return arr;
+      break;
     }
     case node::type::max: {
-      auto arr = std::valarray<float>(stride);
       for (unsigned int i = 0; i < stride; ++i) {
-        if (in0[i] >= in1[i]) arr[i] = in0[i];
-        else arr[i] = in1[i];
+        if (in0[i] >= in1[i]) res[i] = in0[i];
+        else res[i] = in1[i];
       }
-      return arr;
+      break;
     }
     case node::type::min: {
-      auto arr = std::valarray<float>(stride);
       for (unsigned int i = 0; i < stride; ++i) {
-        if (in0[i] <= in1[i]) arr[i] = in0[i];
-        else arr[i] = in1[i];
+        if (in0[i] <= in1[i]) res[i] = in0[i];
+        else res[i] = in1[i];
       }
-      return arr;
+      break;
+    } 
+    case node::type::mul: {
+      res = in0 * in1;
+      break;
+    } 
+    case node::type::pow: {
+      res = std::pow(in0, in1);
+      break;
     }
-    case node::type::mul:
-      return in0 * in1;
-    case node::type::pow:
-      return std::pow(in0, in1);
-    case node::type::sub:
-      return in0 - in1;
+    case node::type::sub: {
+      res = in0 - in1;
+      break;
+    }
     // unary operators
-    case node::type::abs:
-      return std::abs(in0);
-    case node::type::acos:
-      return std::acos(in0);
+    case node::type::abs: {
+      res = std::abs(in0);
+      break;
+    }
+    case node::type::acos: {
+      res = std::acos(in0);
+      break;
+    }
     case node::type::acosh: {
-      auto arr = std::valarray<float>(stride);
       for (unsigned int i = 0; i < stride; ++i)
-        arr[i] = acoshf(in0[i]);
-      return arr;
+        res[i] = acoshf(in0[i]);
+      break;
     }
-    case node::type::asin:
-      return std::asin(in0);
+    case node::type::asin: {
+      res = std::asin(in0);
+      break;
+    }
     case node::type::asinh: {
-      auto arr = std::valarray<float>(stride);
       for (unsigned int i = 0; i < stride; ++i)
-        arr[i] = asinhf(in0[i]);
-      return arr;
+        res[i] = asinhf(in0[i]);
+      break;
     }
-    case node::type::atan:
-      return std::atan(in0);
+    case node::type::atan: {
+      res = std::atan(in0);
+      break;
+    }
     case node::type::atanh: {
-      auto arr = std::valarray<float>(stride);
       for (unsigned int i = 0; i < stride; ++i)
-        arr[i] = atanhf(in0[i]);
-      return arr;
+        res[i] = atanhf(in0[i]);
+      break;
     }
     case node::type::cbrt: {
-      auto arr = std::valarray<float>(stride);
       for (unsigned int i = 0; i < stride; ++i)
-        arr[i] = cbrtf(in0[i]);
-      return arr;
+        res[i] = cbrtf(in0[i]);
+      break;
     }
-    case node::type::cos:
-      return std::cos(in0);
-    case node::type::cosh:
-      return std::cosh(in0);
-    case node::type::cube:
-      return in0 * in0 * in0;
-    case node::type::exp:
-      return std::exp(in0);
+    case node::type::cos: {
+      res = std::cos(in0);
+      break;
+    }
+    case node::type::cosh: {
+      res = std::cosh(in0);
+      break;
+    }
+    case node::type::cube: {
+      res = in0 * in0 * in0;
+      break;
+    }
+    case node::type::exp: {
+      res = std::exp(in0);
+      break;
+    }
     case node::type::inv: {
-      auto arr = std::valarray<float>(stride);
       for (unsigned int i = 0; i < stride; ++i) {
-        if (fabsf(in0[i]) < MIN_VAL) arr[i] = 0.f;
-        else arr[i] = 1.f/(in0[i]);
+        if (fabsf(in0[i]) < MIN_VAL) res[i] = 0.f;
+        else res[i] = 1.f/(in0[i]);
       }
-      return arr;
+      break;
     }
     case node::type::log: {
-      std::valarray<float> arr = std::abs(in0);
+      res = std::abs(in0);
       for (unsigned int i = 0; i < stride; ++i) {
-        if (arr[i] < MIN_VAL) arr[i] = 0.f;
-        else arr[i] = logf(arr[i]);
+        if (res[i] < MIN_VAL) res[i] = 0.f;
+        else res[i] = logf(res[i]);
       }
-      return arr;
+      break;
     }
-    case node::type::neg:
-      return -in0;
+    case node::type::neg: {
+      res = -in0;
+      break;
+    }
     case node::type::rcbrt: {
-      auto arr = std::valarray<float>(stride);
       for (unsigned int i = 0; i < stride; ++i)
-        arr[i] = static_cast<float>(1.0) / cbrtf(in0[i]);
-      return arr;
+        res[i] = static_cast<float>(1.0) / cbrtf(in0[i]);
+      break;
     }
     case node::type::rsqrt: {
-      auto arr = std::valarray<float>(stride);
       for (unsigned int i = 0; i < stride; ++i)
-        arr[i] = static_cast<float>(1.0) / sqrtf(fabsf(in0[i]));
-      return arr;
+        res[i] = static_cast<float>(1.0) / sqrtf(fabsf(in0[i]));
+      break;
     }
-    case node::type::sin:
-      return std::sin(in0);
-    case node::type::sinh:
-      return std::sinh(in0);
-    case node::type::sq:
-      return in0 * in0;
-    case node::type::sqrt:
-      return std::sqrt(std::abs(in0));
-    case node::type::tan:
-      return std::tan(in0);
-    case node::type::tanh:
-      return std::tanh(in0);
+    case node::type::sin: {
+      res = std::sin(in0);
+      break;
+    }
+    case node::type::sinh: {
+      res = std::sinh(in0);
+      break;
+    }
+    case node::type::sq: {
+      res = in0 * in0;
+      break;
+    }
+    case node::type::sqrt: {
+      res = std::sqrt(std::abs(in0));
+      break;
+    }
+    case node::type::tan: {
+      res = std::tan(in0);
+      break;
+    }
+    case node::type::tanh: {
+      res = std::tanh(in0);
+      break;
+    }
     // shouldn't reach here!
     default:
-      return std::valarray<float>(0.0f, stride);
+      res = 0.0f;
+      break;
     };
   }
 }
