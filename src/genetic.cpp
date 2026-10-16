@@ -180,7 +180,7 @@ void cpp_evolve(const std::vector<program> &h_oldprogs,
 
   // Update raw fitness for all programs
   set_batched_fitness(n_progs, h_nextprogs, params, n_samples, data, y,
-                      sample_weights);
+                      sample_weights, true);
 }
 
 float param::p_reproduce() const {
@@ -487,6 +487,9 @@ void symFit(const float *input, const float *labels,
     // Update generation
     ++gen;
   }
+
+  set_batched_fitness(params.population_size, h_currprogs, params, n_rows, input, labels,
+                      sample_weights, false);
 
   // Set final generation programs(deepcopy)
   std::copy(h_currprogs.begin(), h_currprogs.end(), final_progs);
