@@ -12,6 +12,7 @@
 #include <random>
 #include <stack>
 #include <omp.h>
+#include <valarray>
 
 namespace genetic {
 
@@ -23,34 +24,37 @@ template <int MaxSize = MAX_STACK_SIZE>
 void execute_kernel(const program_t d_progs, const float *data, float *y_pred,
                     const uint64_t n_rows, const uint64_t n_progs) {
   #pragma omp parallel for
-  for (uint64_t iterator = 0; iterator < n_progs * n_rows; ++iterator) {
-      uint64_t pid = (iterator / n_rows);
-      uint64_t row_id = (iterator % n_rows);
-      stack<float, MaxSize> eval_stack;
-      program_t curr_p = d_progs + pid; // Current program
+  for (uint64_t pid = 0; pid < n_progs; ++pid) {
+    std::stack<std::valarray<float>> eval_stack;
+    program_t curr_p = d_progs + pid; // Current program
 
-      int end = curr_p->len - 1;
-      node *curr_node = curr_p->nodes + end;
+    int end = curr_p->len - 1;
+    node *curr_node = curr_p->nodes + end;
 
-      float res = 0.0f;
-      float in[2] = {0.0f, 0.0f};
+    std::valarray<float> res(0.0f, n_rows);
+    std::valarray<float> in0(0.0f, n_rows);
+    std::valarray<float> in1(0.0f, n_rows);
 
-      while (end >= 0) {
-        if (detail::is_nonterminal(curr_node->t)) {
-          int ar = detail::arity(curr_node->t);
-          in[0] = eval_stack.pop(); // Min arity of function is 1
-          if (ar > 1)
-            in[1] = eval_stack.pop();
+    while (end >= 0) {
+      if (detail::is_nonterminal(curr_node->t)) {
+        int ar = detail::arity(curr_node->t);
+        in0 = std::move(eval_stack.top()); 
+        eval_stack.pop(); // Min arity of function is 1
+        if (ar > 1) {
+          in1 = std::move(eval_stack.top());
+          eval_stack.pop();
         }
-        res = detail::evaluate_node(*curr_node, data, n_rows, row_id, in);
-        eval_stack.push(res);
-        curr_node--;
-        end--;
       }
-
-      // Outputs stored in col-major format
-      y_pred[pid * n_rows + row_id] = eval_stack.pop();
+      res = detail::evaluate_node(*curr_node, data, n_rows, in0, in1);
+      eval_stack.push(res);
+      curr_node--;
+      end--;
     }
+
+    // Outputs stored in col-major format
+    std::valarray<float> out = std::move(eval_stack.top());
+    std::copy(std::begin(out), std::end(out), y_pred + pid * n_rows);
+  }
 }
 
 program::program()
