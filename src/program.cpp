@@ -12,7 +12,7 @@
 #include <random>
 #include <stack>
 #include <omp.h>
-
+#include <unordered_map>
 namespace genetic {
 
 /**
@@ -26,6 +26,7 @@ void execute_kernel(const program_t d_progs, const float *data, float *y_pred,
   for (uint64_t iterator = 0; iterator < n_progs * n_rows; ++iterator) {
       uint64_t pid = (iterator / n_rows);
       uint64_t row_id = (iterator % n_rows);
+      std::unordered_map<float, std::tuple<float, float, float>> trig_map;
       stack<float, MaxSize> eval_stack;
       program_t curr_p = d_progs + pid; // Current program
 
@@ -42,7 +43,18 @@ void execute_kernel(const program_t d_progs, const float *data, float *y_pred,
           if (ar > 1)
             in[1] = eval_stack.pop();
         }
-        res = detail::evaluate_node(*curr_node, data, n_rows, row_id, in);
+        if ((curr_node->t == node::type::sin || curr_node->t == node::type::cos || curr_node->t == node::type::tan) && trig_map.find(in[0]) == trig_map.end()) {
+          trig_map[in[0]] = std::make_tuple(sinf(in[0]), cosf(in[0]), tanf(in[0]));
+        }
+        if (curr_node->t == node::type::sin) {
+          res = std::get<0>(trig_map[in[0]]);
+        } else if (curr_node->t == node::type::cos) {
+          res = std::get<1>(trig_map[in[0]]);
+        } else if (curr_node->t == node::type::tan) {
+          res = std::get<2>(trig_map[in[0]]);
+        } else {
+          res = detail::evaluate_node(*curr_node, data, n_rows, row_id, in);
+        }
         eval_stack.push(res);
         curr_node--;
         end--;
