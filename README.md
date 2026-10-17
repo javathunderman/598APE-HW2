@@ -2,14 +2,14 @@
 
 PRONTO team submission (code as of commit: 74bb8f1a50b8a48ac8d516a38c15da01ff4a6c28)
 
-- d4f1c741b49b2793e2f2086884f9de6ef5f35fe7 - initial -O3 optimization added to Makefile (section 3.1)
-- b36ec40aee438601a77eb7d1268d99c9abd43d78 - Stack optimizations (section 3.2)
-- a24bc415759fb7bc1421e52a9c39af0a6488f1bf - Node copy optimizations + working OpenMP parallelism (section 3.5)
-- 165124e1c781b6b87ed7c94b1adecd78e997d533 - Initial MSE optimization (technically incorrect but insignificant except for the square wave benchmark, this bug was resolved in the most recent commit on main) (section 3.3)
-- 6ccaf6f80c4c9e909b601846b8fd98ca3b97e71c - Slight OpenMP refinement (handle the PID/row_id indexing correctly per-thread) (technically also section 3.5)
-- 4fb6f99d45937683d8b2fff181d97499012be3d0 - Avoid evaluating `fabsf` repeatedly
-- 1a3bed25d202c61050ee273e89cb03c3bd549b68 - execute\_kernel restructuring (section 3.4)
-- 74bb8f1a50b8a48ac8d516a38c15da01ff4a6c28 - Most recent functional commit - resolves the MSE bug, final optimizations/speedup eval
+- `d4f1c741b49b2793e2f2086884f9de6ef5f35fe7` - initial -O3 optimization added to Makefile (section 3.1)
+- `b36ec40aee438601a77eb7d1268d99c9abd43d78` - Stack optimizations (section 3.2)
+- `a24bc415759fb7bc1421e52a9c39af0a6488f1bf` - Node copy optimizations + working OpenMP parallelism (section 3.5)
+- `165124e1c781b6b87ed7c94b1adecd78e997d533` - Initial MSE optimization (technically incorrect but insignificant except for the square wave benchmark, this bug was resolved in the most recent commit on main) (section 3.3)
+- `6ccaf6f80c4c9e909b601846b8fd98ca3b97e71c` - Slight OpenMP refinement (handle the PID/row_id indexing correctly per-thread) (technically also section 3.5)
+- `4fb6f99d45937683d8b2fff181d97499012be3d0` - Avoid evaluating `fabsf` repeatedly
+- `1a3bed25d202c61050ee273e89cb03c3bd549b68` - execute\_kernel restructuring (section 3.4)
+- `74bb8f1a50b8a48ac8d516a38c15da01ff4a6c28` - Most recent functional commit - resolves the MSE bug, final optimizations/speedup eval
 
 Additionally, the caching implementation (section 4.2) can be found by switching to the `ill-fated-caching` branch. The caching optimizations are implemented relative to commit 6ccaf6f. Likewise, the Taylor series approximation optimization (section 4.5) is implemented relative to commit 1a3bed and is available on the `taylor_approx` branch.
 
