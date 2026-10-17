@@ -235,17 +235,17 @@ void meanSquareError(const uint64_t n_samples, const uint64_t n_progs,
                      math_t *out) {
 
   math_t N = static_cast<math_t>(n_samples);
-
+  math_t WS = static_cast<math_t>(0);
+  for (uint64_t i = 0; i < n_samples; ++i) {
+    WS += W[i];
+  }
   // Compute absolute differences and average along rows
   for (uint64_t pid = 0; pid < n_progs; ++pid) {
     out[pid] = static_cast<math_t>(0);
-    math_t WS = static_cast<math_t>(0);
     for (uint64_t i = 0; i < n_samples; ++i) {
       math_t diff = Y_pred[pid * n_samples + i] - Y[i];
-      out[pid] += W[i] * diff * diff;
-      WS += W[i];
+      out[pid] += (W[i] * diff * diff) / WS;
     }
-    out[pid] = out[pid] / WS;
   }
 }
 
