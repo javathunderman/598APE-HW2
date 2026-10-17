@@ -11,7 +11,7 @@ PRONTO team submission (code as of commit: 74bb8f1a50b8a48ac8d516a38c15da01ff4a6
 - 1a3bed25d202c61050ee273e89cb03c3bd549b68 - execute\_kernel restructuring (section 3.4)
 - 74bb8f1a50b8a48ac8d516a38c15da01ff4a6c28 - Most recent functional commit - resolves the MSE bug, final optimizations/speedup eval
 
-Additionally, the caching implementation (section 4.2) can be found by switching to the `ill-fated-caching` branch. The caching optimizations are implemented relative to commit 6ccaf6f. 
+Additionally, the caching implementation (section 4.2) can be found by switching to the `ill-fated-caching` branch. The caching optimizations are implemented relative to commit 6ccaf6f. Likewise, the Taylor series approximation optimization (section 4.5) is implemented relative to commit 1a3bed and is available on the `taylor_approx` branch.
 
 This repository should compile in the provided Docker container, without additional dependencies. We tested and profiled this project on the CS VM farm, as well as on a laptop PC with an Intel i7-10750H, running Ubuntu Linux.
 
